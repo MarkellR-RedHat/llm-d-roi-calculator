@@ -1,31 +1,400 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>llm-d ROI Calculator | llm-d</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;900&family=Red+Hat+Text:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Red Hat Text', sans-serif; background: #fafafa; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-  .card { background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 48px; max-width: 560px; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-  .icon { width: 64px; height: 64px; margin: 0 auto 24px; }
-  h1 { font-family: 'Red Hat Display', sans-serif; font-size: 1.6rem; font-weight: 900; color: #212121; margin-bottom: 12px; }
-  p { color: #666; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
-  .badge { display: inline-block; font-family: 'Red Hat Display', sans-serif; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: #f3e8f3; color: #7f317f; padding: 4px 14px; border-radius: 100px; }
-  a { color: #cc0000; text-decoration: none; font-weight: 500; }
-  a:hover { text-decoration: underline; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llm-d ROI Calculator — How Many GPUs Could You Save?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-<div class="card">
-  <img class="icon" src="https://llm-d.ai/img/llm-d-icon.png" alt="llm-d">
-  <h1>llm-d ROI Calculator</h1>
-  <p>GPU cost savings calculator for enterprise decision-makers.</p>
-  <span class="badge">Coming Soon</span>
-  <p style="margin-top:24px;font-size:0.82rem;color:#999;">Part of the <a href="https://markellr-redhat.github.io/llm-d-content-hub/">llm-d Content Hub</a></p>
-</div>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-inner container">
+            <div class="header-brand">
+                <span class="header-logo">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                        <rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="5" y="9" width="4" height="4" rx="0.5" fill="currentColor" opacity="0.6"/>
+                        <rect x="11" y="9" width="4" height="4" rx="0.5" fill="currentColor" opacity="0.4"/>
+                        <line x1="6" y1="15" x2="6" y2="18" stroke="currentColor" stroke-width="1.5"/>
+                        <line x1="18" y1="15" x2="18" y2="18" stroke="currentColor" stroke-width="1.5"/>
+                        <line x1="6" y1="3" x2="6" y2="6" stroke="currentColor" stroke-width="1.5"/>
+                        <line x1="18" y1="3" x2="18" y2="6" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </span>
+                <div>
+                    <span class="header-title">llm-d ROI Calculator</span>
+                    <span class="header-subtitle">GPU Savings Estimator</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="https://github.com/llm-d" target="_blank" rel="noopener" class="btn-outline">What is llm-d?</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-orb hero-orb-accent" style="width:500px;height:500px;top:-10%;left:-10%;background:radial-gradient(circle,rgba(46,204,113,0.18),transparent 70%);animation-duration:14s;"></div>
+        <div class="hero-orb hero-orb-accent" style="width:400px;height:400px;top:20%;right:-5%;background:radial-gradient(circle,rgba(52,152,219,0.15),transparent 70%);animation-duration:18s;animation-delay:-5s;"></div>
+        <div class="hero-orb hero-orb-accent" style="width:350px;height:350px;bottom:-5%;left:30%;background:radial-gradient(circle,rgba(231,76,60,0.08),transparent 70%);animation-duration:16s;animation-delay:-8s;"></div>
+
+        <div class="container">
+            <p class="hero-tagline reveal">KV-Cache-Aware Inference Routing</p>
+            <div class="hero-number reveal" id="heroSavings">$0</div>
+            <p class="hero-label reveal">estimated annual savings with llm-d</p>
+            <p class="hero-description reveal">Calculate how many GPUs you could eliminate by switching from round-robin load balancing to llm-d's KV-cache-aware routing. Real numbers for real infrastructure decisions.</p>
+
+            <div class="hero-stats reveal">
+                <div class="stat-card">
+                    <div class="stat-value" id="statGpusSaved">0</div>
+                    <div class="stat-label">GPUs Eliminated</div>
+                </div>
+                <div class="stat-card reveal-delay-1">
+                    <div class="stat-value" id="statAnnualSavings">$0</div>
+                    <div class="stat-label">Annual Savings</div>
+                </div>
+                <div class="stat-card reveal-delay-2">
+                    <div class="stat-value" id="statTtft">0x</div>
+                    <div class="stat-label">TTFT Improvement</div>
+                </div>
+                <div class="stat-card reveal-delay-3">
+                    <div class="stat-value" id="statCo2">0t</div>
+                    <div class="stat-label">CO₂ Reduction</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Calculator Section -->
+    <section class="calculator" id="calculator">
+        <div class="container">
+            <h2 class="section-title reveal">Configure Your Workload</h2>
+            <p class="section-description reveal">Adjust the parameters below to match your deployment. Results update instantly.</p>
+
+            <div class="calculator-wrapper reveal">
+                <!-- Model Size -->
+                <div class="calc-group">
+                    <label class="calc-label">Model Size</label>
+                    <span class="calc-sublabel">Parameters in the model you're serving</span>
+                    <div class="calc-pills" id="modelPills">
+                        <button class="calc-pill" data-value="7">7B</button>
+                        <button class="calc-pill" data-value="8">8B</button>
+                        <button class="calc-pill" data-value="13">13B</button>
+                        <button class="calc-pill" data-value="34">34B</button>
+                        <button class="calc-pill active" data-value="70">70B</button>
+                        <button class="calc-pill" data-value="405">405B</button>
+                    </div>
+                </div>
+
+                <!-- GPU Type -->
+                <div class="calc-group">
+                    <label class="calc-label">GPU Type</label>
+                    <span class="calc-sublabel">Select your GPU hardware</span>
+                    <div class="calc-gpu-cards" id="gpuCards">
+                        <button class="calc-gpu-card" data-value="b200">
+                            <span class="gpu-name">B200</span>
+                            <span class="gpu-cost">$6.00/hr</span>
+                            <span class="gpu-yearly">$52,560/yr</span>
+                        </button>
+                        <button class="calc-gpu-card active" data-value="h200">
+                            <span class="gpu-name">H200</span>
+                            <span class="gpu-cost">$4.50/hr</span>
+                            <span class="gpu-yearly">$39,420/yr</span>
+                        </button>
+                        <button class="calc-gpu-card" data-value="h100">
+                            <span class="gpu-name">H100</span>
+                            <span class="gpu-cost">$3.50/hr</span>
+                            <span class="gpu-yearly">$30,660/yr</span>
+                        </button>
+                        <button class="calc-gpu-card" data-value="mi300x">
+                            <span class="gpu-name">MI300X</span>
+                            <span class="gpu-cost">$4.00/hr</span>
+                            <span class="gpu-yearly">$35,040/yr</span>
+                        </button>
+                        <button class="calc-gpu-card" data-value="a100">
+                            <span class="gpu-name">A100</span>
+                            <span class="gpu-cost">$2.50/hr</span>
+                            <span class="gpu-yearly">$21,900/yr</span>
+                        </button>
+                        <button class="calc-gpu-card" data-value="l40s">
+                            <span class="gpu-name">L40S</span>
+                            <span class="gpu-cost">$1.67/hr</span>
+                            <span class="gpu-yearly">$14,600/yr</span>
+                        </button>
+                        <button class="calc-gpu-card" data-value="a10g">
+                            <span class="gpu-name">A10G</span>
+                            <span class="gpu-cost">$1.25/hr</span>
+                            <span class="gpu-yearly">$10,950/yr</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Daily Request Volume -->
+                <div class="calc-group">
+                    <label class="calc-label">Daily Request Volume</label>
+                    <span class="calc-sublabel">Average inference requests per day</span>
+                    <div class="calc-slider-wrapper">
+                        <input type="range" id="volumeSlider" min="10000" max="5000000" step="10000" value="500000">
+                        <div class="calc-slider-value" id="volumeLabel">500K</div>
+                    </div>
+                    <div class="calc-slider-ticks">
+                        <span>10K</span>
+                        <span>1M</span>
+                        <span>2.5M</span>
+                        <span>5M</span>
+                    </div>
+                    <div class="calc-custom-input-row">
+                        <label for="volumeInput">or enter exact value:</label>
+                        <input type="number" id="volumeInput" class="calc-custom-input" min="1000" step="1000" value="500000" placeholder="e.g. 750000">
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="calc-advanced">
+                    <button class="calc-advanced-toggle" id="advancedToggle">
+                        Advanced Options
+                        <span class="toggle-chevron" id="toggleChevron">&#9662;</span>
+                    </button>
+                    <div class="calc-advanced-body" id="advancedBody">
+                        <!-- Workload Type -->
+                        <div class="calc-group">
+                            <label class="calc-label">Workload Type</label>
+                            <span class="calc-sublabel">Different workloads benefit differently from KV-cache reuse</span>
+                            <div class="calc-pills" id="workloadPills">
+                                <button class="calc-pill active" data-value="chat">Multi-turn Chat</button>
+                                <button class="calc-pill" data-value="agentic">Agentic</button>
+                                <button class="calc-pill" data-value="rag">RAG</button>
+                                <button class="calc-pill" data-value="code">Code Completion</button>
+                                <button class="calc-pill" data-value="batch">Batch</button>
+                            </div>
+                        </div>
+
+                        <!-- Avg Tokens per Request -->
+                        <div class="calc-group">
+                            <label class="calc-label">Avg Tokens per Request</label>
+                            <div class="calc-slider-wrapper">
+                                <input type="range" id="tokensSlider" min="128" max="4096" step="128" value="1024">
+                                <div class="calc-slider-value" id="tokensLabel">1,024</div>
+                            </div>
+                            <div class="calc-slider-ticks">
+                                <span>128</span>
+                                <span>1024</span>
+                                <span>2048</span>
+                                <span>3072</span>
+                                <span>4096</span>
+                            </div>
+                            <div class="calc-custom-input-row">
+                                <label for="tokensInput">or enter exact value:</label>
+                                <input type="number" id="tokensInput" class="calc-custom-input" min="64" step="64" value="1024" placeholder="e.g. 2048">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- GPU Comparison -->
+    <section class="gpu-comparison" id="gpuComparison">
+        <div class="container">
+            <h2 class="section-title reveal">GPU Fleet Comparison</h2>
+            <p class="section-description reveal">See exactly which GPUs you can decommission with cache-aware routing.</p>
+
+            <div class="gpu-comparison-grid reveal">
+                <!-- Round-Robin Panel -->
+                <div class="gpu-panel gpu-panel--rr">
+                    <div class="gpu-panel-header">
+                        <h3>Round-Robin</h3>
+                        <span class="comparison-label comparison-label--rr">Standard Load Balancing</span>
+                    </div>
+                    <div class="gpu-count" id="rrGpuCount">0 GPUs</div>
+                    <div class="gpu-grid" id="rrGpuGrid"></div>
+                    <div class="gpu-panel-stats">
+                        <div class="gpu-stat">
+                            <span class="stat-label">Annual Cost</span>
+                            <span class="stat-value" id="rrCost">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VS Divider -->
+                <div class="gpu-vs-divider">
+                    <div class="vs-badge">VS</div>
+                </div>
+
+                <!-- Cache-Aware Panel -->
+                <div class="gpu-panel gpu-panel--ca">
+                    <div class="gpu-panel-header">
+                        <h3>Cache-Aware</h3>
+                        <span class="comparison-label comparison-label--ca">llm-d Smart Routing</span>
+                    </div>
+                    <div class="gpu-count" id="caGpuCount">0 GPUs</div>
+                    <div class="gpu-grid" id="caGpuGrid"></div>
+                    <div class="gpu-panel-stats">
+                        <div class="gpu-stat">
+                            <span class="stat-label">Annual Cost</span>
+                            <span class="stat-value" id="caCost">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Banner -->
+            <div class="savings-banner reveal">
+                <div class="savings-banner-number" id="savingsBannerNumber">0</div>
+                <div class="savings-banner-label">fewer GPUs needed with llm-d cache-aware routing</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Scenario Cards -->
+    <section class="scenarios" id="scenarios">
+        <div class="container">
+            <h2 class="section-title reveal">Try a Scenario</h2>
+            <p class="section-description reveal">Click a card to auto-fill the calculator with a realistic deployment profile.</p>
+
+            <div class="scenarios-grid">
+                <div class="scenario-card reveal" data-scenario="support">
+                    <div class="scenario-icon">💬</div>
+                    <h3>Customer Support Bot</h3>
+                    <div class="scenario-specs">
+                        <span class="scenario-spec">13B model</span>
+                        <span class="scenario-spec">H100 GPUs</span>
+                        <span class="scenario-spec">1M req/day</span>
+                    </div>
+                    <div class="scenario-benefit">Multi-turn conversations with high cache reuse potential</div>
+                </div>
+
+                <div class="scenario-card reveal reveal-delay-1" data-scenario="code">
+                    <div class="scenario-icon">⌨️</div>
+                    <h3>Enterprise Code Assistant</h3>
+                    <div class="scenario-specs">
+                        <span class="scenario-spec">34B model</span>
+                        <span class="scenario-spec">H200 GPUs</span>
+                        <span class="scenario-spec">500K req/day</span>
+                    </div>
+                    <div class="scenario-benefit">Agentic workflows with deep context and repeated tool calls</div>
+                </div>
+
+                <div class="scenario-card reveal reveal-delay-2" data-scenario="rag">
+                    <div class="scenario-icon">📚</div>
+                    <h3>RAG Knowledge Base</h3>
+                    <div class="scenario-specs">
+                        <span class="scenario-spec">70B model</span>
+                        <span class="scenario-spec">H200 GPUs</span>
+                        <span class="scenario-spec">500K req/day</span>
+                    </div>
+                    <div class="scenario-benefit">Document retrieval with shared system prompts and context</div>
+                </div>
+
+                <div class="scenario-card reveal reveal-delay-3" data-scenario="batch">
+                    <div class="scenario-icon">⚡</div>
+                    <h3>High-Volume API Gateway</h3>
+                    <div class="scenario-specs">
+                        <span class="scenario-spec">7B model</span>
+                        <span class="scenario-spec">A100 GPUs</span>
+                        <span class="scenario-spec">5M req/day</span>
+                    </div>
+                    <div class="scenario-benefit">High-throughput batch processing with shorter prompts</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Methodology -->
+    <section class="methodology" id="methodology">
+        <div class="container">
+            <h2 class="section-title reveal">Methodology & Assumptions</h2>
+            <p class="section-description reveal">Full transparency on how we calculate these numbers.</p>
+
+            <div class="method-grid reveal">
+                <div class="method-item">
+                    <details>
+                        <summary>GPU Cost Assumptions</summary>
+                        <div class="method-item-body">
+                            <p>GPU costs are based on typical cloud on-demand pricing as of 2025. B200 at $6.00/hr ($52,560/yr), H200 at $4.50/hr ($39,420/yr), H100 at $3.50/hr ($30,660/yr), MI300X at $4.00/hr ($35,040/yr), A100 at $2.50/hr ($21,900/yr), L40S at $1.67/hr ($14,600/yr), A10G at $1.25/hr ($10,950/yr). Reserved instance or spot pricing would lower absolute costs but the relative savings ratio stays the same.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="method-item">
+                    <details>
+                        <summary>Replica & GPU Mapping</summary>
+                        <div class="method-item-body">
+                            <p>GPUs per replica scale with model size: 7B and 8B models fit on 1 GPU, 13B on 1 GPU, 34B needs 2 GPUs (tensor parallel), 70B needs 4 GPUs, and 405B needs 8 GPUs. Throughput per replica scales inversely with model size: 7B handles ~18 req/s, 8B ~16, 13B ~10, 34B ~5, 70B ~3, and 405B ~1 req/s. Replicas include 30% headroom for burst handling.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="method-item">
+                    <details>
+                        <summary>Cache Savings Factors</summary>
+                        <div class="method-item-body">
+                            <p>Cache-aware routing savings vary by workload. Multi-turn Chat: 40% (shared conversation history). Agentic: 50% (repeated tool schemas and context). RAG: 30% (shared system prompts, varied documents). Code Completion: 35% (shared file context). Batch: 15% (minimal prefix overlap). These are based on published research and production deployments.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="method-item">
+                    <details>
+                        <summary>TTFT Improvement</summary>
+                        <div class="method-item-body">
+                            <p>Time-to-first-token improvements come from skipping KV-cache computation for cached prefixes. Multi-turn Chat: 4x, Agentic: 5x, RAG: 3.5x, Code: 3x, Batch: 2x. These multipliers apply to the prefill phase only; total end-to-end latency improvement depends on generation length.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="method-item">
+                    <details>
+                        <summary>CO₂ Calculations</summary>
+                        <div class="method-item-body">
+                            <p>CO₂ estimates use approximately 2.8 metric tons per GPU per year, based on average US data center power usage and carbon intensity. Actual figures vary significantly by region, PUE, and energy mix. This is a directional estimate, not a precise measurement.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="method-item">
+                    <details>
+                        <summary>What is llm-d?</summary>
+                        <div class="method-item-body">
+                            <p>llm-d is a CNCF Sandbox project for intelligent LLM inference scheduling. Its Endpoint Picker Policy (EPP) integrates with Kubernetes Gateway API to route requests to vLLM pods that already have relevant KV-cache entries, dramatically reducing redundant prefill computation across your serving fleet.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-brand">llm-d ROI Calculator</div>
+            <div class="footer-links">
+                <a href="https://github.com/llm-d" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://www.cncf.io/projects/llm-d/" target="_blank" rel="noopener">CNCF Sandbox</a>
+            </div>
+            <div class="footer-note">
+                Built for platform engineers evaluating KV-cache-aware inference routing.
+                <br>Estimates are directional — run your own benchmarks for production decisions.
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
 </body>
 </html>
